@@ -5,6 +5,8 @@ Yes it is - but there's one thing it's missing - a proper API.
 
 That's why this library exists - Blacksmith is an unofficial [Laravel Forge API](http://forge.laravel.com) to automate common tasks.
 
+The API is still improving and I will keep adding features, as I need them.
+
 ## Getting Started
 
 ```php
