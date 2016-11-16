@@ -1,0 +1,32 @@
+{
+    "name": "mpociot/blacksmith",
+    "license": "MIT",
+    "description": "The unofficial Laravel Forge API",
+    "keywords": [
+        "API",
+        "Forge",
+        "Laravel"
+    ],
+    "homepage": "http://github.com/mpociot/blacksmith",
+    "authors": [
+        {
+            "name": "Marcel Pociot",
+            "email": "m.pociot@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "tightenco/collect": "~5.0",
+        "behat/mink-goutte-driver": "^1.2",
+        "behat/mink": "^1.7"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.0",
+        "mockery/mockery": "^0.9.5"
+    },
+    "autoload": {
+        "psr-0": {
+            "Mpociot\\Blacksmith": "src/"
+        }
+    }
+}
