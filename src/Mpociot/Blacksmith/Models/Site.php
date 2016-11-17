@@ -4,12 +4,6 @@ namespace Mpociot\Blacksmith\Models;
 
 class Site extends ForgeModel
 {
-    /** @var \Illuminate\Support\Collection */
-    protected $data;
-
-    /** @var \Mpociot\Blacksmith\Browser */
-    protected $browser;
-
     protected $id;
     protected $server_id;
     protected $name;
