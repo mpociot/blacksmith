@@ -63,7 +63,7 @@ $newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/pu
 
 ### Update Metadata
 
-Update the metadata of the current site, and return an update collection of the `Site` object or throws an exception if errors occur.
+Update the metadata of the current site, and return an updated `Server` object or throws an exception if errors occur.
 
 ```php
 $server = $server->updateMetadata($server_name, $ip_address, $private_ip_address, $size);

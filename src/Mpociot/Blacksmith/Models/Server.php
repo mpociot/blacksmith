@@ -104,12 +104,12 @@ class Server extends ForgeModel
     }
 
     /**
-     * Create a new site on this server.
+     * Update the site metadata.
      *
-     * @param string $name
-     * @param string $ip_address
-     * @param string $private_ip_address
-     * @param integer $size
+     * @param string $name The server name to use
+     * @param string $ip_address The public IP address
+     * @param string $private_ip_address The private IP Address
+     * @param integer $size The RAM size
      * @return Site
      * @throws Exception
      */
