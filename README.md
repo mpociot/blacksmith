@@ -61,6 +61,14 @@ Returns a the newly created `Site` object or throws an exception if errors occur
 $newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/public', $wildcards = false);
 ```
 
+### Update Metadata
+
+Update the metadata of the current site, and return an update collection of the `Site` object or throws an exception if errors occur.
+
+```php
+$server = $server->updateMetadata($server_name, $ip_address, $private_ip_address, $size);
+```
+
 ### Get Schedules Jobs
 
 Returns a Collection of `ScheduledJob` objects for the server.

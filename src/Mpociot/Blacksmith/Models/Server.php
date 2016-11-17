@@ -102,4 +102,32 @@ class Server extends ForgeModel
 
         return new Site($result, $this->browser);
     }
+
+    /**
+     * Create a new site on this server.
+     *
+     * @param string $name
+     * @param string $ip_address
+     * @param string $private_ip_address
+     * @param integer $size
+     * @return Site
+     * @throws Exception
+     */
+    public function updateMetadata($server_name, $ip_address, $private_ip_address, $size)
+    {
+        $result = $this->browser->putContent('https://forge.laravel.com/servers/'.$this->id.'/meta', [
+            "name" => $server_name,
+            "ip_address" => $ip_address,
+            "private_ip_address" => $private_ip_address,
+            "size" => intval($size),
+        ]);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $this->data = $this->data->merge($result);
+
+        return $this;
+    }
 }
