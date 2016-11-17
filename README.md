@@ -88,6 +88,13 @@ $data = $server->toArray();
 
 ## Site methods
 
+### Get Environment
+
+Returns the configured .env file
+
+```php
+$env_content = $site->getEnvironment();
+```
 
 ### toArray
 

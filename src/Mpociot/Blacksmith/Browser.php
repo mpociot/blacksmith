@@ -59,17 +59,23 @@ class Browser
 
     /**
      * @param $url
+     * @param bool $raw
      * @return \Illuminate\Support\Collection
      * @throws Exception
      */
-    public function getContent($url)
+    public function getContent($url, $raw = false)
     {
         if ($this->logged_in === false) {
             $this->login();
         }
         
         $this->session->visit($url);
-        return collect(json_decode($this->session->getPage()->getContent(), true));
+        $content = $this->session->getPage()->getContent();
+        
+        if ($raw) {
+            return $content;
+        }
+        return collect(json_decode($content, true));
     }
 
     /**
