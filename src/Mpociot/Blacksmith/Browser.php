@@ -68,10 +68,10 @@ class Browser
         if ($this->logged_in === false) {
             $this->login();
         }
-        
+
         $this->session->visit($url);
         $content = $this->session->getPage()->getContent();
-        
+
         if ($raw) {
             return $content;
         }
@@ -91,6 +91,22 @@ class Browser
         }
 
         $this->session->getDriver()->post($url, json_encode($payload));
+        return json_decode($this->session->getPage()->getContent(), true);
+    }
+
+    /**
+     * @param $url
+     * @param $payload
+     * @return mixed
+     * @throws Exception
+     */
+    public function putContent($url, $payload)
+    {
+        if ($this->logged_in === false) {
+            $this->login();
+        }
+
+        $this->session->getDriver()->put($url, json_encode($payload));
         return json_decode($this->session->getPage()->getContent(), true);
     }
 
