@@ -26,6 +26,11 @@ abstract class ForgeModel
         $this->build();
     }
 
+    public function __get($key)
+    {
+        return $this->data->get($key);
+    }
+
     protected function build()
     {
         $this->data->each(function ($value, $property) {
