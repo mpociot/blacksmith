@@ -1,6 +1,6 @@
 <?php
 
-namespace Mpociot\Blacksmith;
+namespace Mpociot\Blacksmith\Models;
 
 use Exception;
 
@@ -8,33 +8,14 @@ use Exception;
  * Class Server
  * @package Mpociot\Blacksmith
  */
-class Server
+class Server extends ForgeModel
 {
-    /** @var \Illuminate\Support\Collection */
-    protected $data;
-
-    /** @var Browser */
-    protected $browser;
 
     /** @var string */
     protected $id;
 
     /** @var string */
     protected $name;
-
-    /**
-     * Server constructor.
-     * @param array $data
-     * @param Browser $browser
-     */
-    public function __construct(array $data, Browser $browser)
-    {
-        $this->data = collect($data);
-        $this->browser = $browser;
-
-        $this->id = $this->data->get('id');
-        $this->name = $this->data->get('name');
-    }
 
     /**
      * Load advanced server information
@@ -53,9 +34,47 @@ class Server
     {
         $this->getAdvancedData();
 
-        return collect($this->sites)->transform(function ($data) {
+        return collect($this->data->get('sites'))->transform(function ($data) {
             return new Site($data, $this->browser);
         });
+    }
+
+    /**
+     * Get all schedules jobs on this server.
+     *
+     * @return $this
+     */
+    public function getScheduledJobs()
+    {
+        $this->getAdvancedData();
+
+        return collect($this->data->get('jobs'))->transform(function ($data) {
+            return new ScheduledJob($data, $this->browser);
+        });
+    }
+
+    /**
+     * Create a new scheduled job on this server.
+     *
+     * @param string $command
+     * @param string $user
+     * @param string $frequency
+     * @return ScheduledJob
+     * @throws Exception
+     */
+    public function addScheduledJob($command, $user = 'forge', $frequency = 'minutely')
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/servers/'.$this->id.'/job', [
+            'command' => $command,
+            'user' => $user,
+            'frequency' => $frequency,
+        ]);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        return new ScheduledJob($result, $this->browser);
     }
 
     /**
@@ -76,28 +95,11 @@ class Server
             'directory' => $directory,
             'wildcards' => $wildcards,
         ]);
-        
+
         if ($this->browser->getSession()->getStatusCode() === 500) {
             throw new Exception('Error: '.print_r($result, true));
         }
 
         return new Site($result, $this->browser);
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->data->toArray();
-    }
-
-    /**
-     * @param $key
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        return $this->data->get($key);
     }
 }

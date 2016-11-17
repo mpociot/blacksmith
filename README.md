@@ -58,7 +58,23 @@ $sites = $server->getSites();
 Returns a the newly created `Site` object or throws an exception if errors occur.
 
 ```php
-$newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/public', $wildcards = false)
+$newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/public', $wildcards = false);
+```
+
+### Get Schedules Jobs
+
+Returns a Collection of `ScheduledJob` objects for the server.
+
+```php
+$jobs = $server->getScheduledJobs();
+```
+
+### Add a new scheduled job
+
+Returns a the newly created `ScheduledJob` object or throws an exception if errors occur.
+
+```php
+$newJob = $server->addScheduledJob($command, $user = 'forge', $frequency = 'minutely');
 ```
 
 ### toArray

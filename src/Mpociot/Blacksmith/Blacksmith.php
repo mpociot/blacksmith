@@ -2,10 +2,10 @@
 
 namespace Mpociot\Blacksmith;
 
-use Behat\Mink\Driver\GoutteDriver;
-use Behat\Mink\Session;
 use Exception;
 use Illuminate\Support\Collection;
+use Mpociot\Blacksmith\Models\Server;
+use Mpociot\Blacksmith\Models\Site;
 
 class Blacksmith
 {
@@ -47,7 +47,7 @@ class Blacksmith
      * Get a single server by its ID
      *
      * @param int $id
-     * @return Collection
+     * @return Server
      */
     public function getServer($id)
     {
