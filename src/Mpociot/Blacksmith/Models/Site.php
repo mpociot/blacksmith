@@ -25,13 +25,4 @@ class Site extends ForgeModel
     {
         return $this->data->toArray();
     }
-
-    /**
-     * @param $key
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        return $this->data->get($key);
-    }
 }
