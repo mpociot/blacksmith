@@ -56,6 +56,19 @@ class Blacksmith
     }
 
     /**
+     * Get a single site by its ID
+     *
+     * @param int $id
+     * @return Server
+     */
+    public function getSite($id)
+    {
+        $site = $this->browser->getContent('https://forge.laravel.com/api/servers/sites/list')->where('id', $id)->first();
+        $siteData = $this->browser->getContent('https://forge.laravel.com/api/servers/'.$site['server_id'].'/sites/'.$id)->toArray();
+        return new Server($siteData, $this->browser);
+    }
+
+    /**
      * Get all available sites
      *
      * @return Collection

@@ -43,6 +43,14 @@ Returns a single `Server` object.
 $server = $blacksmith->getServer(1);
 ```
 
+### Get a site by its ID
+
+Returns a single `Site` object.
+
+```php
+$site = $blacksmith->getSite(1);
+```
+
 ## Server methods
 
 ### Get Sites
@@ -102,6 +110,14 @@ Returns the configured .env file
 
 ```php
 $env_content = $site->getEnvironment();
+```
+
+### Install an application
+
+Install and deploy an application to the site.
+
+```php
+$site->installApp($repository, $provider = 'github', $branch = 'master', $composer = true, $migrate = false);
 ```
 
 ### toArray
