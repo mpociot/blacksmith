@@ -79,4 +79,14 @@ class Blacksmith
             return new Site($data, $this->browser);
         });
     }
+
+    /**
+     * Get the User Data
+     *
+     * @return Array User data
+     */
+    public function getUser()
+    {
+        return $this->browser->getContent('https://forge.laravel.com/api/user')->toArray();
+    }
 }
