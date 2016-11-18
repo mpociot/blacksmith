@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use Mpociot\Blacksmith\Models\Server;
 use Mpociot\Blacksmith\Models\Site;
+use Mpociot\Blacksmith\Models\User;
 
 class Blacksmith
 {
@@ -81,12 +82,13 @@ class Blacksmith
     }
 
     /**
-     * Get the User Data
+     * Get the logged in User
      *
-     * @return Array User data
+     * @return User
      */
     public function getUser()
     {
-        return $this->browser->getContent('https://forge.laravel.com/api/user')->toArray();
+        $user = $this->browser->getContent('https://forge.laravel.com/api/user')->toArray();
+        return new User($user, $this->browser);
     }
 }
