@@ -44,12 +44,4 @@ class Site extends ForgeModel
         }
         return false;
     }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->data->toArray();
-    }
 }
