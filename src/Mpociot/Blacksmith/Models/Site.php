@@ -37,9 +37,11 @@ class Site extends ForgeModel
     {
         if (! $this->has_app_installed) {
             return $this->browser->postContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/project', [
-                'command' => $command,
-                'user' => $user,
-                'frequency' => $frequency,
+                'repository' => $repository,
+                'provider' => $provider,
+                'branch' => $branch,
+                'composer' => $composer,
+                'migrate' => $migrate,
             ]);
         }
         return false;
