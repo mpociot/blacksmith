@@ -98,6 +98,30 @@ Returns a single `Circle` object.
 $circle = $blacksmith->addCircle('Name of Circle');
 ```
 
+### Get all recipes
+
+Returns a Collection of `Recipe` objects.
+
+```php
+$recipes = $blacksmith->getRecipes();
+```
+
+### Get a recipe by its ID
+
+Returns a single `Recipe` object.
+
+```php
+$recipe = $blacksmith->getRecipe(1);
+```
+
+### Add a new recipe
+
+Returns a single `Recipe` object.
+
+```php
+$recipe = $blacksmith->addRecipe('RecipeName', 'root', 'Recipe contents');
+```
+
 ## Server methods
 
 ### Get Sites
@@ -114,6 +138,20 @@ Returns a the newly created `Site` object or throws an exception if errors occur
 
 ```php
 $newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/public', $wildcards = false);
+```
+
+### Add a new SSH key
+
+Add a SSH key to a server 
+
+```php
+$server->addSSHKey('Name SSH key', 'Contents of SSH key');
+```
+
+### Remove a SSH key from a server
+
+```php
+$server->removeSSHKey(1);
 ```
 
 ### Update Metadata
@@ -201,6 +239,14 @@ It return a fresh `Circle` object.
 
 ```php
 $circle = $circle->setServers([1,2]);
+```
+
+## Recipe methods
+
+### Update a Recipe
+
+```php
+$recipe = $recipe->update($name, $user, $script);
 ```
 
 ## License
