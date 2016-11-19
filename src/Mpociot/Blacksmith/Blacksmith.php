@@ -4,6 +4,7 @@ namespace Mpociot\Blacksmith;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Mpociot\Blacksmith\Models\Circle;
 use Mpociot\Blacksmith\Models\Server;
 use Mpociot\Blacksmith\Models\Site;
 use Mpociot\Blacksmith\Models\User;
@@ -79,6 +80,53 @@ class Blacksmith
         return $this->browser->getContent('https://forge.laravel.com/api/servers/sites/list')->transform(function ($data) {
             return new Site($data, $this->browser);
         });
+    }
+
+    /**
+     * Get all circles
+     *
+     * @return Collection
+     */
+    public function getCircles()
+    {
+        return $this->browser->getContent('https://forge.laravel.com/api/circles')->transform(function ($data) {
+            return new Circle($data, $this->browser);
+        });
+    }
+
+    /**
+     * Get a single circle by its ID
+     *
+     * @param int $id
+     * @return Circle
+     */
+    public function getCircle($id)
+    {
+        $circleData = $this->browser->getContent('https://forge.laravel.com/api/circles')->where('id', $id)->first();
+        return new Circle($circleData, $this->browser);
+    }
+
+    /**
+     * Add a new Circle
+     *
+     * @param string $name
+     * @return Circle
+     */
+    public function addCircle($name)
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/circles', ['name' => $name]);
+        return new Circle($result, $this->browser);
+    }
+
+    /**
+     * Delete a Circle
+     *
+     * @param int $id
+     * @return Circle
+     */
+    public function deleteCircle($id)
+    {
+        return $this->browser->deleteContent('https://forge.laravel.com/circles/'.$id);
     }
 
     /**
