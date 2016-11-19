@@ -140,6 +140,20 @@ Returns a the newly created `Site` object or throws an exception if errors occur
 $newSite = $server->addSite($site_name, $project_type = 'php', $directory = '/public', $wildcards = false);
 ```
 
+### Add a new SSH key
+
+Add a SSH key to a server 
+
+```php
+$server->addSSHKey('Name SSH key', 'Contents of SSH key');
+```
+
+### Remove a SSH key from a server
+
+```php
+$server->removeSSHKey(1);
+```
+
 ### Update Metadata
 
 Update the metadata of the current site, and return an updated `Server` object or throws an exception if errors occur.

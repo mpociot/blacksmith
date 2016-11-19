@@ -104,6 +104,35 @@ class Server extends ForgeModel
     }
 
     /**
+     * Add an SSH key to server.
+     *
+     * @param $name
+     * @param $key
+     * @throws Exception
+     */
+    public function addSSHKey($name, $key)
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/servers/'.$this->id.'/key', [
+            'name' => $name,
+            'key' => $key,
+        ]);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+    }
+
+    /**
+     * Remove a SSH key from the server.
+     *
+     * @param $id
+     */
+    public function removeSSHKey($id)
+    {
+        $this->browser->deleteContent('https://forge.laravel.com/servers/'.$this->id.'/key/'.$id);
+    }
+
+    /**
      * Update the site metadata.
      *
      * @param string $name The server name to use
