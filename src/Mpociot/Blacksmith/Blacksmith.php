@@ -91,4 +91,25 @@ class Blacksmith
         $user = $this->browser->getContent('https://forge.laravel.com/api/user')->toArray();
         return new User($user, $this->browser);
     }
+
+    /**
+     * Create a new server with given configuration
+     *
+     * @param array $server_configuration
+     * @return Server
+     * @throws Exception
+     */
+    public function createServer($server_configuration)
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/servers', $server_configuration);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        // Add the provision URL
+        $result['provision_url'] = 'wget -O forge.sh https://forge.laravel.com/servers/106829/vps?forge_token='.$this->getUser()->forge_token.'; bash forge.sh';
+
+        return new Server($result, $this->browser);
+    }
 }
