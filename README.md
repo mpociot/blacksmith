@@ -43,6 +43,29 @@ Returns a single `Server` object.
 $server = $blacksmith->getServer(1);
 ```
 
+### Add a server to Forge
+
+Returns a single `Server` object with a provision url.
+
+The following example will create a Load Balancer with a custom provider
+```php
+$server = $blacksmith->addServer([
+    'backups' => false,
+    'database' => 'forge',
+    'hhvm' => false,
+    'ip_address' => '94.212.124.121',
+    'maria' => false,
+    'name' => 'harmonious-lagoon',
+    'nodeBalancer' => true,
+    'old_php' => false,
+    'php_version' => 'php70',
+    'private_ip_address' => '10.0.0.2',
+    'provider' => 'custom',
+    'size' => '2',
+    'timezone' => 'Europe/Berlin',
+]);
+```
+
 ### Get a site by its ID
 
 Returns a single `Site` object.

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use Mpociot\Blacksmith\Models\Server;
 use Mpociot\Blacksmith\Models\Site;
+use Mpociot\Blacksmith\Models\User;
 
 class Blacksmith
 {
@@ -78,5 +79,37 @@ class Blacksmith
         return $this->browser->getContent('https://forge.laravel.com/api/servers/sites/list')->transform(function ($data) {
             return new Site($data, $this->browser);
         });
+    }
+
+    /**
+     * Get the logged in User
+     *
+     * @return User
+     */
+    public function getUser()
+    {
+        $user = $this->browser->getContent('https://forge.laravel.com/api/user')->toArray();
+        return new User($user, $this->browser);
+    }
+
+    /**
+     * Add new server to Forge with given configuration
+     *
+     * @param array $server_configuration
+     * @return Server
+     * @throws Exception
+     */
+    public function addServer($server_configuration)
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/servers', $server_configuration);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        // Add the provision URL
+        $result['provision_url'] = 'wget -O forge.sh https://forge.laravel.com/servers/'.$result['id'].'/vps?forge_token='.$this->getUser()->forge_token.'; bash forge.sh';
+
+        return new Server($result, $this->browser);
     }
 }
