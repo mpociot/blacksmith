@@ -18,7 +18,8 @@
         "php": ">=5.5.0",
         "tightenco/collect": "~5.0",
         "behat/mink-goutte-driver": "^1.2",
-        "behat/mink": "^1.7"
+        "behat/mink": "^1.7",
+        "mnapoli/silly": "^1.5"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0",
@@ -28,5 +29,8 @@
         "psr-0": {
             "Mpociot\\Blacksmith": "src/"
         }
-    }
+    },
+    "bin": [
+        "blacksmith"
+    ]
 }

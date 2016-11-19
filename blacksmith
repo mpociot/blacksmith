@@ -1,0 +1,63 @@
+#!/usr/bin/env php
+<?php
+require __DIR__.'/vendor/autoload.php';
+
+use Mpociot\Blacksmith\Blacksmith;
+use Silly\Application;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
+
+$version = '0.3.0';
+$app = new Application('Blacksmith', $version);
+
+define('BLACKSMITH_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.blacksmith');
+$configFile = BLACKSMITH_HOME_PATH.'/config.json';
+if (!is_dir(BLACKSMITH_HOME_PATH)) {
+    mkdir(BLACKSMITH_HOME_PATH);
+    file_put_contents($configFile, json_encode(['email' => '', 'password' => '']));
+}
+$config = json_decode(file_get_contents(BLACKSMITH_HOME_PATH.'/config.json'));
+
+$blacksmith = new Blacksmith($config->email, $config->password);
+
+$app->command('login email password', function($email, $password, OutputInterface $output) use($configFile) {
+    file_put_contents($configFile, json_encode([
+        'email' => $email,
+        'password' => $password
+    ]));
+
+    $output->write('Email and Password successfully set.');
+});
+
+$app->command('servers:list', function (OutputInterface $output) use ($blacksmith) {
+    $servers = $blacksmith->getActiveServers();
+
+    $table = new Table($output);
+    $table->setHeaders(['ID', 'Name', 'Provider', 'IP Address', 'PHP Version', 'Status', 'Connection']);
+    $servers->each(function($server) use ($table) {
+        $table->addRow([$server->id, $server->name, $server->provider, $server->ip_address, $server->php_version, $server->displayable_provision, $server->connection_status]);
+    });
+    $table->render();
+});
+
+
+$app->command('sites:list [--server=]', function ($server, OutputInterface $output) use ($blacksmith) {
+    if ($server) {
+        $sites = $blacksmith->getServer($server)->getSites();
+    } else {
+        $sites = $blacksmith->getSites();
+    }
+
+    $table = new Table($output);
+    $table->setHeaders(['ID', 'Server', 'Domain', 'Directory', 'Wildcards', 'App', 'Type', 'SSL']);
+    $sites->each(function($site) use ($table, $blacksmith) {
+        $site = $blacksmith->getSite($site->id);
+        $table->addRow([$site->id, $site->server['name'], $site->name, $site->directory, ($site->wildcards) ? '✓' : '-', $site->repository, $site->displayable_project_type, ($site->secured)  ? '✓' : '-']);
+    });
+    $table->render();
+});
+
+/**
+ * Run the application.
+ */
+$app->run();
