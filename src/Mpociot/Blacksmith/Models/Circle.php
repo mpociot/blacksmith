@@ -29,15 +29,30 @@ class Circle extends ForgeModel
     }
 
     /**
-     * Update all members of the circle
+     * Set all members of the circle
      *
      * @param array $member_ids
      * @return Circle
      */
-    public function updateMembers($member_ids)
+    public function setMembers($member_ids)
     {
         $result = $this->browser->putContent('https://forge.laravel.com/circles/'.$this->id.'/members', [
             'members' => $member_ids,
+        ]);
+
+        return new Circle($result, $this->browser);
+    }
+
+    /**
+     * Set all servers of the circle
+     *
+     * @param array $server_ids
+     * @return Circle
+     */
+    public function setServers($server_ids)
+    {
+        $result = $this->browser->putContent('https://forge.laravel.com/circles/'.$this->id.'/servers', [
+            'servers' => $server_ids,
         ]);
 
         return new Circle($result, $this->browser);
