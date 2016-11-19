@@ -29,4 +29,16 @@ class BlacksmithDriver extends GoutteDriver
             'HTTP_X_XSRF_TOKEN' => $this->getClient()->getCookieJar()->get('XSRF-TOKEN')->getValue()
         ], $postData);
     }
+
+    /**
+     * Perform a PUT request
+     */
+    public function delete($url)
+    {
+        $this->getClient()->request('DELETE', $this->prepareUrl($url), [], [], [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_X_XSRF_TOKEN' => $this->getClient()->getCookieJar()->get('XSRF-TOKEN')->getValue()
+        ]);
+    }
 }
