@@ -5,6 +5,7 @@ namespace Mpociot\Blacksmith;
 use Exception;
 use Illuminate\Support\Collection;
 use Mpociot\Blacksmith\Models\Circle;
+use Mpociot\Blacksmith\Models\Recipe;
 use Mpociot\Blacksmith\Models\Server;
 use Mpociot\Blacksmith\Models\Site;
 use Mpociot\Blacksmith\Models\User;
@@ -122,11 +123,62 @@ class Blacksmith
      * Delete a Circle
      *
      * @param int $id
-     * @return Circle
+     * @return mixed
      */
     public function deleteCircle($id)
     {
         return $this->browser->deleteContent('https://forge.laravel.com/circles/'.$id);
+    }
+
+    /**
+     * Get all recipes
+     *
+     * @return Collection
+     */
+    public function getRecipes()
+    {
+        return $this->browser->getContent('https://forge.laravel.com/api/recipes')->transform(function ($data) {
+            return new Recipe($data, $this->browser);
+        });
+    }
+
+    /**
+     * Get a single recipe by its ID
+     *
+     * @param int $id
+     * @return Recipe
+     */
+    public function getRecipe($id)
+    {
+        $recipeData = $this->browser->getContent('https://forge.laravel.com/api/recipes')->where('id', $id)->first();
+        return new Recipe($recipeData, $this->browser);
+    }
+
+    /**
+     * Add a new Recipe
+     *
+     * @param string $name
+     * @return Recipe
+     */
+    public function addRecipe($name, $user, $script)
+    {
+        $result = $this->browser->postContent('https://forge.laravel.com/recipes', [
+            'name' => $name,
+            'user' => $user,
+            'script' => $script,
+        ]);
+        return new Recipe($result, $this->browser);
+    }
+
+    /**
+     * Delete a Recipe
+     *
+     * @param int $id
+     * @return mixed
+     */
+    public function deleteRecipe($id)
+    {
+        return $this->browser->deleteContent('https://forge.laravel.com/recipes/'.$id);
     }
 
     /**
