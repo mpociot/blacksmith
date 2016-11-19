@@ -123,11 +123,11 @@ class Server extends ForgeModel
     }
 
     /**
-     * Remove a SSH key from the server.
+     * Delete a SSH key from the server.
      *
      * @param $id
      */
-    public function removeSSHKey($id)
+    public function deleteSSHKey($id)
     {
         $this->browser->deleteContent('https://forge.laravel.com/servers/'.$this->id.'/key/'.$id);
     }
