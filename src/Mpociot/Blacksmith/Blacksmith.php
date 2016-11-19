@@ -108,7 +108,7 @@ class Blacksmith
         }
 
         // Add the provision URL
-        $result['provision_url'] = 'wget -O forge.sh https://forge.laravel.com/servers/106829/vps?forge_token='.$this->getUser()->forge_token.'; bash forge.sh';
+        $result['provision_url'] = 'wget -O forge.sh https://forge.laravel.com/servers/'.$result['id'].'/vps?forge_token='.$this->getUser()->forge_token.'; bash forge.sh';
 
         return new Server($result, $this->browser);
     }
