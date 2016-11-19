@@ -111,6 +111,20 @@ class Browser
     }
 
     /**
+     * @param $url
+     * @return mixed
+     * @throws Exception
+     */
+    public function deleteContent($url)
+    {
+        if ($this->logged_in === false) {
+            $this->login();
+        }
+
+        return $this->session->getDriver()->delete($url);
+    }
+
+    /**
      * Gets the value of session.
      *
      * @return mixed

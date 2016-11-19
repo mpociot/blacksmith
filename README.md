@@ -74,6 +74,30 @@ Returns a single `Site` object.
 $site = $blacksmith->getSite(1);
 ```
 
+### Get all circles
+
+Returns a Collection of `Circle` objects of the user.
+
+```php
+$circles = $blacksmith->getCircles();
+```
+
+### Get a circle by its ID
+
+Returns a single `Circle` object.
+
+```php
+$circle = $blacksmith->getCircle(1);
+```
+
+### Add a new circle
+
+Returns a single `Circle` object.
+
+```php
+$circle = $blacksmith->addCircle('Name of Circle');
+```
+
 ## Server methods
 
 ### Get Sites
@@ -149,6 +173,34 @@ Returns an array containing all available site information.
 
 ```php
 $data = $site->toArray();
+```
+
+## Circle methods
+
+### Invite a member by email
+
+Returns a fresh `Circle` object or throws an exception if errors occur.
+
+```php
+$circle = $circle->inviteMember('email@company.com');
+```
+
+### Set all circle members
+
+If you want to delete a member you update a circle with all member id's.
+It return a fresh `Circle` object.
+
+```php
+$circle = $circle->setMembers([1,2]);
+```
+
+### Set all circle servers
+
+If you want to add or delete a server from the circle you update a circle with all server id's.
+It return a fresh `Circle` object.
+
+```php
+$circle = $circle->setServers([1,2]);
 ```
 
 ## License
