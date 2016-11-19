@@ -93,13 +93,13 @@ class Blacksmith
     }
 
     /**
-     * Create a new server with given configuration
+     * Add new server to Forge with given configuration
      *
      * @param array $server_configuration
      * @return Server
      * @throws Exception
      */
-    public function createServer($server_configuration)
+    public function addServer($server_configuration)
     {
         $result = $this->browser->postContent('https://forge.laravel.com/servers', $server_configuration);
 
