@@ -205,6 +205,22 @@ Install and deploy an application to the site.
 $site->installApp($repository, $provider = 'github', $branch = 'master', $composer = true, $migrate = false);
 ```
 
+### Deploy an application
+
+Deploys an application on this site.
+
+```php
+$site->deploy();
+```
+
+### Get last deployment log
+
+Returns the last deployment log for this site.
+
+```php
+$site->deployLog();
+```
+
 ### toArray
 
 Returns an array containing all available site information.

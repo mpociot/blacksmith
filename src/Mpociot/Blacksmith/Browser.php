@@ -81,17 +81,23 @@ class Browser
     /**
      * @param $url
      * @param $payload
+     * @param $raw
      * @return mixed
      * @throws Exception
      */
-    public function postContent($url, $payload)
+    public function postContent($url, $payload, $raw = false)
     {
         if ($this->logged_in === false) {
             $this->login();
         }
 
         $this->session->getDriver()->post($url, json_encode($payload));
-        return json_decode($this->session->getPage()->getContent(), true);
+        $content = $this->session->getPage()->getContent();
+
+        if ($raw) {
+            return $content;
+        }
+        return json_decode($content, true);
     }
 
     /**

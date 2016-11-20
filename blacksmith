@@ -20,7 +20,7 @@ $config = json_decode(file_get_contents(BLACKSMITH_HOME_PATH.'/config.json'));
 
 $blacksmith = new Blacksmith($config->email, $config->password);
 
-$app->command('login email password', function($email, $password, OutputInterface $output) use($configFile) {
+$app->command('login email password', function ($email, $password, OutputInterface $output) use ($configFile) {
     file_put_contents($configFile, json_encode([
         'email' => $email,
         'password' => $password
@@ -34,12 +34,11 @@ $app->command('servers:list', function (OutputInterface $output) use ($blacksmit
 
     $table = new Table($output);
     $table->setHeaders(['ID', 'Name', 'Provider', 'IP Address', 'PHP Version', 'Status', 'Connection']);
-    $servers->each(function($server) use ($table) {
+    $servers->each(function ($server) use ($table) {
         $table->addRow([$server->id, $server->name, $server->provider, $server->ip_address, $server->php_version, $server->displayable_provision, $server->connection_status]);
     });
     $table->render();
 });
-
 
 $app->command('sites:list [--server=]', function ($server, OutputInterface $output) use ($blacksmith) {
     if ($server) {
@@ -50,11 +49,24 @@ $app->command('sites:list [--server=]', function ($server, OutputInterface $outp
 
     $table = new Table($output);
     $table->setHeaders(['ID', 'Server', 'Domain', 'Directory', 'Wildcards', 'App', 'Type', 'SSL']);
-    $sites->each(function($site) use ($table, $blacksmith) {
+    $sites->each(function ($site) use ($table, $blacksmith) {
         $site = $blacksmith->getSite($site->id);
         $table->addRow([$site->id, $site->server['name'], $site->name, $site->directory, ($site->wildcards) ? '✓' : '-', $site->repository, $site->displayable_project_type, ($site->secured)  ? '✓' : '-']);
     });
     $table->render();
+});
+
+$app->command('site:deploy site', function ($site, OutputInterface $output) use ($blacksmith) {
+    $site = $blacksmith->getSite($site);
+    $site->deploy();
+    $output->writeln('<info>Deployed '.$site->name.' successfully!</info>');
+});
+
+$app->command('site:log site', function ($site, OutputInterface $output) use ($blacksmith) {
+    $site = $blacksmith->getSite($site);
+    
+    $output->writeln('<info>Last deployment log for: '.$site->name.'</info>');
+    $output->write($site->deployLog());
 });
 
 /**

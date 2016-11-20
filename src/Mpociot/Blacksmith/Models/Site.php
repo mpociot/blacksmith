@@ -46,4 +46,30 @@ class Site extends ForgeModel
         }
         return false;
     }
+
+    /**
+     * Deploy the current installed application on this site.
+     * 
+     * @return mixed
+     */
+    public function deploy()
+    {
+        if ($this->has_app_installed) {
+            return $this->browser->postContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/deploy/now', []);
+        }
+        return false;
+    }
+
+    /**
+     * Get the last deployment log on this site.
+     * 
+     * @return mixed
+     */
+    public function deployLog()
+    {
+        if ($this->has_app_installed) {
+            return $this->browser->postContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/deploy/log', [], true);
+        }
+        return '';
+    }
 }
