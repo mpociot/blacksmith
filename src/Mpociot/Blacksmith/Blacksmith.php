@@ -59,6 +59,16 @@ class Blacksmith
     }
 
     /**
+     * Delete a server by its ID
+     *
+     * @param $id
+     */
+    public function deleteServer($id)
+    {
+        $this->browser->deleteContent('https://forge.laravel.com/servers/'.$id);
+    }
+
+    /**
      * Get a single site by its ID or name
      *
      * @param int $identifier
