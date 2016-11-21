@@ -8,6 +8,14 @@ Returns a Collection of `Server` objects.
 $activeServers = $blacksmith->getActiveServers();
 ```
 
+## Get all servers
+
+Returns a Collection of `Server` objects.
+
+```php
+$servers = $blacksmith->getServers();
+```
+
 ## Get a server by its ID
 
 Returns a single `Server` object.
@@ -110,6 +118,78 @@ Possible region options:
 - 9 => Singapore
 - 8 => Tokyo
 
+### Add a server with Amazon provider
+
+```php
+$server = $blacksmith->addServer([
+    'backups' => false
+    'credential' => _CREDENTIAL_ID_
+    'database' => 'forge'
+    'hhvm' => false
+    'maria' => true
+    'name' => 'howling-moon'
+    'nodeBalancer' => false
+    'old_php' => false
+    'php_version' => 'php70'
+    'provider' => 'aws'
+    'region' => 7
+    'size' => '2GB'
+    'timezone' => 'Europe/Berlin'
+]);
+```
+
+Replace _CREDENTIAL_ID_ with your Amazon provider credential ID.
+
+Possible size options:  
+- '1GB' => 1 GiB RAM - 1 vCPU - $0.013 / Hour - $10 / Month
+- '2GB' => 2 GiB RAM - 1 vCPU - $0.026 / Hour - $20 / Month
+- '4GB' => 4 GiB RAM - 2 vCPUs - $0.052 / Hour - $40 / Month
+- '8GB' => 8 GiB RAM - 2 vCPUs - $0.104 / Hour - $80 / Month
+- '16GB' => 16 GiB RAM - 4 vCPUs - $0.239 / Hour - $175 / Month
+- '32GB' => 32 GiB RAM - 8 vCPUs - $0.479 / Hour - $350 / Month
+- '64GB' => 64 GiB RAM - 16 vCPUs - $0.958 / Hour - $700 / Month
+
+Possible region options:  
+- 'us-west-1' => California
+- 'eu-west-1' => Ireland
+- 'eu-central-1' => Frankfurt
+- 'us-west-2' => Oregon
+- 'sa-east-1' => Sao Paulo
+- 'ap-northeast-2' => Seoul
+- 'ap-southeast-1' => Singapore
+- 'ap-southeast-2' => Sydney
+- 'ap-northeast-1' => Tokyo
+- 'us-east-1' => Virginia
+
+### Add a custom server example
+
+The following example will create a server with a custom provider.  
+Returns a single `Server` object with a provision url.
+
+Fields to override:  
+- ip_address
+- name
+- size
+- private_ip_address
+
+```php
+$server = $blacksmith->addServer([
+    'backups' => false,
+    'database' => 'forge',
+    'hhvm' => false,
+    'ip_address' => '123.212.124.121',
+    'maria' => false,
+    'name' => 'sparkling-lake',
+    'nodeBalancer' => false,
+    'old_php' => false,
+    'php_version' => 'php70',
+    'private_ip_address' => '',
+    'provider' => 'custom',
+    'size' => '2',
+    'timezone' => 'Europe/Berlin',
+]);
+```
+
 ### Add a custom LoadBalancer example
 
 The following example will create a Load Balancer with a custom provider.  
@@ -126,7 +206,7 @@ $server = $blacksmith->addServer([
     'backups' => false,
     'database' => 'forge',
     'hhvm' => false,
-    'ip_address' => '94.212.124.121',
+    'ip_address' => '123.212.124.121',
     'maria' => false,
     'name' => 'harmonious-lagoon',
     'nodeBalancer' => true,
@@ -137,4 +217,14 @@ $server = $blacksmith->addServer([
     'size' => '2',
     'timezone' => 'Europe/Berlin',
 ]);
+```
+
+Notice the difference on the custom servers. The only change is nodeBalancer is set to true instead of false when a nodeBalancer is needed.
+
+## Remove a server by its ID
+
+Remove a server from Forge. Don't try this at home, you have been warned..
+
+```php
+$server = $blacksmith->deleteServer(1);
 ```
