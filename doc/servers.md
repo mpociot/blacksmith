@@ -26,7 +26,21 @@ $server = $blacksmith->getServer(1);
 
 ## Add a server to Forge
 
+### Globals options to set
+
+PHP version options  
+- 'php71' - Install PHP 7.1 on the server
+- 'php70' - Install PHP 7.0 on the server
+- 'php56' - Install PHP 5.6 on the server
+
+Database option  
+Set the 'maria' key on the configuration with one of the following
+- true - Server will install and use MariaDB 10.1
+- false - Server will install and use MySQL 5.7
+
 ### Add a server with DigitalOcean 2.0 provider
+
+If you want weekly backups on DigitalOcean for this server set the 'backups' key to **true**. 
 
 ```php
 $server = $blacksmith->addServer([
