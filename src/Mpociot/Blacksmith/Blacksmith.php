@@ -87,6 +87,20 @@ class Blacksmith
         $siteData = $this->browser->getContent('https://forge.laravel.com/api/servers/'.$site['server_id'].'/sites/'.$site['id'])->toArray();
         return new Site($siteData, $this->browser);
     }
+    
+    /**
+     * Delete site
+     *
+     * @param $identifier
+     * @return mixed
+     * @throws Exception
+     */
+    public function deleteSite($identifier)
+    {
+        $site = $this->getSite($identifier);
+        return $this->browser->deleteContent('https://forge.laravel.com/api/servers/'.$site->server_id.'/sites/'.$site->id);
+    }
+
 
     /**
      * Get all available sites
