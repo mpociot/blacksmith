@@ -2,9 +2,10 @@
 
 namespace Mpociot\Blacksmith\Models;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Mpociot\Blacksmith\Browser;
 
-abstract class ForgeModel
+abstract class ForgeModel implements Arrayable
 {
 
     /** @var \Illuminate\Support\Collection */

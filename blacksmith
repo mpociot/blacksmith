@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Load correct autoloader depending on install location.
  */
@@ -36,42 +37,787 @@ $app->command('login email password', function ($email, $password, OutputInterfa
     $output->write('Email and Password successfully set.');
 });
 
-$app->command('servers:list', function (OutputInterface $output) use ($blacksmith) {
-    $servers = $blacksmith->getActiveServers();
 
-    $table = new Table($output);
-    $table->setHeaders(['ID', 'Name', 'Provider', 'IP Address', 'PHP Version', 'Status', 'Connection']);
-    $servers->each(function ($server) use ($table) {
-        $table->addRow([$server->id, $server->name, $server->provider, $server->ip_address, $server->php_version, $server->displayable_provision, $server->connection_status]);
-    });
-    $table->render();
-});
+$app->command(
+    'servers:list [--format=]',
+    function ($format, OutputInterface $output) use ($blacksmith) {
+        $servers = $blacksmith->getActiveServers();
 
-$app->command('sites:list [--server=]', function ($server, OutputInterface $output) use ($blacksmith) {
-    if ($server) {
-        $sites = $blacksmith->getServer($server)->getSites();
-    } else {
-        $sites = $blacksmith->getSites();
+        if($format === 'json') {
+            $output->writeln(json_encode($servers->toArray(), JSON_PRETTY_PRINT));
+            exit;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders(['ID', 'Name', 'Provider', 'IP Address', 'PHP Version', 'Status', 'Connection']);
+        $servers->each(function ($server) use ($table, $blacksmith) {
+            $server = $blacksmith->getServer($server->id);
+            $table->addRow([$server->id, $server->name, $server->provider, $server->ip_address, $server->php_version, $server->displayable_provision, $server->connection_status]);
+        });
+        $table->render();
     }
+);
 
-    $table = new Table($output);
-    $table->setHeaders(['ID', 'Server', 'Domain', 'Directory', 'Wildcards', 'App', 'Type', 'SSL']);
-    $sites->each(function ($site) use ($table, $blacksmith) {
-        $site = $blacksmith->getSite($site->id);
-        $table->addRow([$site->id, $site->server['name'], $site->name, $site->directory, ($site->wildcards) ? '✓' : '-', $site->repository, $site->displayable_project_type, ($site->secured)  ? '✓' : '-']);
-    });
-    $table->render();
+$app->command(
+    'servers:get serverId [--format=]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+
+        if($format === 'json') {
+            $output->writeln(json_encode($server->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Provider',
+            'IP Address',
+            'PHP Version',
+            'Status',
+            'Connection'
+        ]);
+        $table->addRow([
+            $server->id,
+            $server->name,
+            $server->provider,
+            $server->ip_address,
+            $server->php_version,
+            $server->displayable_provision,
+            $server->connection_status
+        ]);
+        $table->render();
+    }
+);
+
+$app->command(
+    'sites:list [--format=]',
+    function ($format, OutputInterface $output) use ($blacksmith) {
+
+        $sites = $blacksmith->getSites();
+
+        if($format === 'json') {
+            $output->writeln(json_encode($sites->toArray(), JSON_PRETTY_PRINT));
+            return;
+
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Server Name',
+            'Server ID'
+        ]);
+        $sites->each(function ($site) use ($table, $blacksmith) {
+            $table->addRow([
+                $site->id,
+                $site->name,
+                $site->server_name,
+                $site->server_id
+            ]);
+        });
+        $table->render();
+    }
+);
+
+$app->command(
+    'sites:get siteId [--format=]',
+    function ($siteId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $site = $blacksmith->getSite($siteId);
+
+        if($format === 'json') {
+            $output->writeln(json_encode($site->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Directory',
+            'Wildcards',
+            'Status',
+            'Repository',
+            'Server ID',
+            'Server Name'
+        ]);
+        $table->addRow([
+            $site->id,
+            $site->name,
+            $site->directory,
+            $site->widlcards,
+            $site->status,
+            $site->repository,
+            $site->server['id'],
+            $site->server['name'],
+        ]);
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:sites:list serverId [--format]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+        $sites = $server->getSites();
+
+        if($format === 'json') {
+            $output->writeln(json_encode($sites->toArray(), JSON_PRETTY_PRINT));
+            exit;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Directory',
+            'Wildcards',
+            'Status',
+            'Repository',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $sites->each(function ($site) use ($table, $blacksmith, $server) {
+            $table->addRow([
+                $site->id,
+                $site->name,
+                $site->directory,
+                $site->wildcards,
+                $site->status,
+                $site->repository,
+                $server->id,
+                $server->name,
+            ]);
+        });
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:sites:get serverId siteId [--format=]',
+    function($serverId, $siteId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $site = $server->getSite($siteId);
+
+        if($format === 'json') {
+            $output->writeln(json_encode($site->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Directory',
+            'Wildcards',
+            'Status',
+            'Repository',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $site->id,
+            $site->name,
+            $site->directory,
+            $site->wildcards,
+            $site->status,
+            $site->repository,
+            $server->id,
+            $server->name,
+        ]);
+
+        $table->render();
+    }
+);
+
+
+$app->command(
+    'server:sites:add serverId siteName [--projectType=] [--directory=] [--wildcards=] [--format=]',
+    function($serverId, $siteName, $projectType = 'php', $directory = '/public', $wildcards = false, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $site = $server->addSite($siteName, $projectType, $directory, $wildcards);
+
+        if($format === 'json') {
+            $output->writeln(json_encode($site->toArray(), JSON_PRETTY_PRINT));
+            exit;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Directory',
+            'Wildcards',
+            'Status',
+            'Repository',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $site->id,
+            $site->name,
+            $site->directory,
+            $site->wildcards,
+            $site->status,
+            $site->repository,
+            $server->id,
+            $server->name,
+        ]);
+
+        $table->render();
+
+    }
+);
+
+$app->command(
+    'server:sites:remove serverId siteId [--format=]',
+    function($serverId, $siteId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->removeSite($siteId);
+        if($format === 'json') {
+            $output->writeln(json_encode($response->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'server:databases:list serverId [--format=]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+        $databases = $server->getDatabases();
+
+        if($format === 'json') {
+            $output->writeln(json_encode($databases->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $databases->each(function ($database) use ($table, $blacksmith, $server) {
+            $table->addRow([
+                $database->id,
+                $database->name,
+                $database->status,
+                $server->id,
+                $server->name,
+            ]);
+        });
+
+        $table->render();
+    }
+);
+
+
+$app->command(
+    'server:databases:get serverId databaseId [--format=]',
+    function($serverId, $databaseId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $database = $server->getDatabase($databaseId);
+        if($format === 'json') {
+            $output->writeln(json_encode($database->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $database->id,
+            $database->name,
+            $database->status,
+            $server->id,
+            $server->name,
+        ]);
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:databases:add serverId databaseName [--username=] [--password=] [--format=]',
+    function($serverId, $databaseName, $username = '', $password = '', $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $database = $server->addDatabase($databaseName, $username, $password);
+        if($format === 'json') {
+            $output->writeln(json_encode($database->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $database->id,
+            $database->name,
+            $database->status,
+            $server->id,
+            $server->name,
+        ]);
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:databases:remove serverId databaseId [--format=]',
+    function($serverId, $databaseId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->removeDatabase($databaseId);
+        if($format === 'json') {
+            $output->writeln(json_encode($response->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+
+$app->command(
+    'server:database_users:list serverId [--format=]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+        $databaseUsers = $server->getDatabaseUsers();
+
+        if($format === 'json') {
+            echo (json_encode($databaseUsers->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name',
+            'Databases',
+        ]);
+
+        $databaseUsers->each(function ($databaseUser) use ($table, $blacksmith, $server) {
+            $databases = $databaseUser->getDatabases();
+            $databaseNames = $databases->transform(function($database){
+                return $database->name;
+            });
+            $table->addRow([
+                $databaseUser->id,
+                $databaseUser->name,
+                $databaseUser->status,
+                $server->id,
+                $server->name,
+                implode("\n", $databaseNames->toArray()),
+            ]);
+        });
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:database_users:get serverId databaseUserId [--format=]',
+    function($serverId, $databaseUserId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $databaseUser = $server->getDatabaseUser($databaseUserId);
+
+        if($format === 'json') {
+            echo (json_encode($databaseUser->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name',
+            'Databases',
+        ]);
+
+        $databases = $databaseUser->getDatabases();
+        $databaseNames = $databases->transform(function($database){
+            return $database->name;
+        });
+        $table->addRow([
+            $databaseUser->id,
+            $databaseUser->name,
+            $databaseUser->status,
+            $server->id,
+            $server->name,
+            implode("\n", $databaseNames->toArray()),
+        ]);
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:database_users:add serverId username password [--canAccess=]* [--format=]',
+    function($serverId, $username, $password, $canAccess = array(), $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $databaseUser = $server->addDatabaseUser($username, $password, $canAccess);
+
+        if($format === 'json') {
+            echo (json_encode($databaseUser->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $databases = $databaseUser->getDatabases();
+        $table->addRow([
+            $databaseUser->id,
+            $databaseUser->name,
+            $databaseUser->status,
+            $server->id,
+            $server->name
+        ]);
+
+        $table->render();
 });
 
-$app->command('site:deploy site', function ($site, OutputInterface $output) use ($blacksmith) {
-    $site = $blacksmith->getSite($site);
+$app->command(
+    'server:database_users:remove serverId databaseUserId [--format=]',
+    function($serverId, $databaseUserId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->removeDatabaseUser($databaseUserId);
+        if($format === 'json') {
+            $output->writeln(json_encode($response->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'server:database_users:update serverId username [--canAccess=]* [--format=]',
+    function($serverId, $username, $canAccess = array(), $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $databaseUser = $server->updateDatabaseUser($username, $canAccess);
+
+        if($format === 'json') {
+            echo (json_encode($databaseUser->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $databaseUser->id,
+            $databaseUser->name,
+            $databaseUser->status,
+            $server->id,
+            $server->name
+        ]);
+
+        $table->render();
+    });
+
+
+$app->command(
+    'server:ssh_keys:list serverId [--format=]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+        $sshKeys = $server->getSSHKeys();
+
+        if($format === 'json') {
+            $output->writeln(json_encode($sshKeys->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $sshKeys->each(function ($sshKey) use ($table, $blacksmith, $server) {
+            $table->addRow([
+                $sshKey->id,
+                $sshKey->name,
+                $sshKey->status,
+                $server->id,
+                $server->name
+            ]);
+        });
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:ssh_keys:add serverId name key [--format=]',
+    function($serverId, $name, $key, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $sshKey = $server->addSSHKey($name, $key);
+
+        if($format === 'json') {
+            echo (json_encode($sshKey->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Name',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $sshKey->id,
+            $sshKey->name,
+            $sshKey->status,
+            $server->id,
+            $server->name
+        ]);
+
+        $table->render();
+    });
+
+$app->command(
+    'server:ssh_keys:remove serverId sshKeyId [--format=]',
+    function($serverId, $sshKeyId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->removeSSHKey($sshKeyId);
+        if($format === 'json') {
+            $output->writeln(json_encode($response->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'server:scheduled_jobs:list serverId [--format=]',
+    function ($serverId, $format, OutputInterface $output) use ($blacksmith) {
+
+        $server = $blacksmith->getServer($serverId);
+        $scheduledJobs = $server->getScheduledJobs();
+
+        if($format === 'json') {
+            $output->writeln(json_encode($scheduledJobs->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Command',
+            'User',
+            'Frequency',
+            'Cron',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $scheduledJobs->each(function ($scheduledJob) use ($table, $blacksmith, $server) {
+            $table->addRow([
+                $scheduledJob->id,
+                $scheduledJob->command,
+                $scheduledJob->user,
+                $scheduledJob->frequency,
+                $scheduledJob->cron,
+                $scheduledJob->status,
+                $server->id,
+                $server->name
+            ]);
+        });
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:scheduled_jobs:add serverId script user frequency [--format=]',
+    function($serverId, $script, $user, $frequency, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $scheduledJob = $server->addScheduledJob($script, $user, $frequency);
+
+        if($format === 'json') {
+            echo (json_encode($scheduledJob->toArray(), JSON_PRETTY_PRINT));
+            return;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'ID',
+            'Command',
+            'User',
+            'Frequency',
+            'Cron',
+            'Status',
+            'Server ID',
+            'Server Name'
+        ]);
+
+        $table->addRow([
+            $scheduledJob->id,
+            $scheduledJob->command,
+            $scheduledJob->user,
+            $scheduledJob->frequency,
+            $scheduledJob->cron,
+            $scheduledJob->status,
+            $server->id,
+            $server->name
+        ]);
+
+        $table->render();
+    }
+);
+
+$app->command(
+    'server:scheduled_jobs:remove serverId scheduledJobId [--format=]',
+    function($serverId, $scheduledJobId, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->removeScheduledJob($scheduledJobId);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'server:max_file_upload_size:update serverId megabytes [--format=]',
+    function($serverId, $megabytes, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->updateMaxFileUploadSize($megabytes);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'server:meta:update serverId serverName ipAddress size [--privateIpAddress=] [--format=]',
+    function($serverId, $serverName, $ipAddress, $privateIpAddress = '', $size, $format, OutputInterface $output) use ($blacksmith) {
+        $server = $blacksmith->getServer($serverId);
+        $response = $server->updateMetadata($serverName, $ipAddress, $privateIpAddress, $size);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'site:environment:get siteId [--format=]',
+    function ($siteId, $format, OutputInterface $output) use ($blacksmith) {
+        $site = $blacksmith->getSite($siteId);
+        $response = $site->getEnvironment();
+        if($format === 'json') {
+            $output->write(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'site:environment:update siteId data [--format=]',
+    function ($siteId, $data, $format, OutputInterface $output) use ($blacksmith) {
+        $site = $blacksmith->getSite($siteId);
+        $response = $site->updateEnvironment($data);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'site:nginx_config:get siteId [--format=]',
+    function ($siteId, $format, OutputInterface $output) use ($blacksmith) {
+        $site = $blacksmith->getSite($siteId);
+        $response = $site->getNginxConfig();
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'site:nginx_config:update siteId data [--format=]',
+    function ($siteId, $data, $format, OutputInterface $output) use ($blacksmith) {
+        $site = $blacksmith->getSite($siteId);
+        $response = $site->updateNginxConfig($data);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command(
+    'site:web_directory:update siteId directory [--format=]',
+    function ($siteId, $directory, $format, OutputInterface $output) use ($blacksmith) {
+        $site = $blacksmith->getSite($siteId);
+        $response = $site->updateWebDirectory($directory);
+        if($format === 'json') {
+            $output->writeln(json_encode($response, JSON_PRETTY_PRINT));
+            return;
+        }
+    }
+);
+
+$app->command('site:deploy siteId', function ($siteId, OutputInterface $output) use ($blacksmith) {
+    $site = $blacksmith->getSite($siteId);
     $site->deploy();
     $output->writeln('<info>Deployed '.$site->name.' successfully!</info>');
 });
 
-$app->command('site:log site', function ($site, OutputInterface $output) use ($blacksmith) {
-    $site = $blacksmith->getSite($site);
-    
+$app->command('site:deploy:log siteId', function ($siteId, OutputInterface $output) use ($blacksmith) {
+    $site = $blacksmith->getSite($siteId);
+
     $output->writeln('<info>Last deployment log for: '.$site->name.'</info>');
     $output->write($site->deployLog());
 });

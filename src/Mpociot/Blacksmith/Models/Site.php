@@ -14,14 +14,9 @@ class Site extends ForgeModel
     protected $secured;
     protected $has_app_installed;
 
-    /**
-     * Return the configured .env data
-     * @return string
+    /** ------------------------------------------------------------------------
+     * Apps
      */
-    public function getEnvironment()
-    {
-        return $this->browser->getContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/environment', true);
-    }
 
     /**
      * Install an application on this site.
@@ -35,17 +30,157 @@ class Site extends ForgeModel
      */
     public function installApp($repository, $provider = 'github', $branch = 'master', $composer = true, $migrate = false)
     {
-        if (! $this->has_app_installed) {
-            return $this->browser->postContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/project', [
-                'repository' => $repository,
-                'provider' => $provider,
-                'branch' => $branch,
-                'composer' => $composer,
-                'migrate' => $migrate,
-            ]);
+        if ($this->has_app_installed) {
+            return false;
         }
-        return false;
+
+        $data = [
+            'repository' => $repository,
+            'provider' => $provider,
+            'branch' => $branch,
+            'composer' => $composer,
+            'migrate' => $migrate,
+        ];
+
+        $response = $this->browser->postContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/project', $data);
+
+        return $response;
     }
+
+    /** ------------------------------------------------------------------------
+     * Environment
+     */
+
+    /**
+     * Return the configured .env data
+     *
+     * @return string
+     */
+    public function getEnvironment()
+    {
+        $result = $this->browser->getContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/environment', true);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $response = [
+            'responseCode' => $this->browser->getSession()->getStatusCode(),
+            'response' => $result
+        ];
+
+        return $response;
+    }
+
+    /**
+     * Update the configured .env data
+     *
+     * @return string
+     */
+    public function updateEnvironment($env)
+    {
+        $data = [
+            'env' => $env
+        ];
+
+        $result = $this->browser->putContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/environment', $data);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $response = [
+            'responseCode' => $this->browser->getSession()->getStatusCode(),
+            'response' => $result
+        ];
+
+        return $response;
+    }
+
+    /** ------------------------------------------------------------------------
+     * Nginx Config
+     */
+
+    /**
+     * Return the sites nginx config
+     *
+     * @return string
+     */
+    public function getNginxConfig()
+    {
+        $result = $this->browser->getContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/nginx/config', true);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $response = [
+            'responseCode' => $this->browser->getSession()->getStatusCode(),
+            'response' => $result
+        ];
+
+        return $response;
+    }
+
+
+    /**
+     * Update the sites nginx config
+     *
+     * @return string
+     */
+    public function updateNginxConfig($config)
+    {
+        $data = [
+            'config' => $config
+        ];
+
+        $result = $this->browser->putContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/nginx/config', $data);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $response = [
+            'responseCode' => $this->browser->getSession()->getStatusCode(),
+            'response' => $result
+        ];
+
+        return $response;
+    }
+
+    /** ------------------------------------------------------------------------
+     * Meta
+     */
+
+    /**
+     * Update the site metadata.
+     *
+     * @param $directory
+     * @return array
+     */
+    public function updateWebDirectory($directory)
+    {
+        $data = [
+            'directory' => $directory
+        ];
+
+        $result = $this->browser->putContent('https://forge.laravel.com/servers/'.$this->server_id.'/sites/'.$this->id.'/directory', $data);
+
+        if ($this->browser->getSession()->getStatusCode() === 500) {
+            throw new Exception('Error: '.print_r($result, true));
+        }
+
+        $response = [
+            'responseCode' => $this->browser->getSession()->getStatusCode(),
+            'response' => $result
+        ];
+
+        return $response;
+    }
+
+    /** ------------------------------------------------------------------------
+     * Deployments
+     */
 
     /**
      * Deploy the current installed application on this site.
