@@ -79,9 +79,9 @@ class Blacksmith
         $sites = $this->browser->getContent('https://forge.laravel.com/api/servers/sites/list');
         
         if ($identifier > 0) {
-            $site = $sites->where('id', $identifier)->first();
+            $site = $sites->whereLoose('id', $identifier)->first();
         } else {
-            $site = $sites->where('name', $identifier)->first();
+            $site = $sites->whereLoose('name', $identifier)->first();
         }
 
         $siteData = $this->browser->getContent('https://forge.laravel.com/api/servers/'.$site['server_id'].'/sites/'.$site['id'])->toArray();
