@@ -33,6 +33,14 @@ class Server extends ForgeModel
     }
 
     /**
+     * Refresh the server data.
+     */
+    public function refresh(){
+        $serverData = $this->browser->getContent('https://forge.laravel.com/api/servers/'.$this->id)->toArray();
+        $this->data = collect($serverData);
+    }
+
+    /**
      * Get a site on this server
      *
      * @param $id
